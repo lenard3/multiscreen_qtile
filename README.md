@@ -36,6 +36,28 @@ Sounds like nothing special but i think its nice being able to move a settings w
 
 ---
 
+# Requirements
+This list may not be complete.
+## Presentation mode
+- pympress
+- xset
+
+## Qtile config
+- qtile-bonsai
+- xset
+- xrandr
+- autorandr
+- feh
+- picom
+- dunst
+- xfce4-power-manager
+- udiskie
+- polkit-gnome-authentication-agent-1
+- nm-applet
+- blueman-applet
+
+---
+
 > [!IMPORTANT]
 > This repo only includes the qtile config files and the extra presentation mode script.
 > No other files are provided. Maybe in the future.
