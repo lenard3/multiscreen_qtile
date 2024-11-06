@@ -237,7 +237,7 @@ def init_widgets_list() -> list:
                     font="JetBrainsMono Nerd Font",
                     fontsize=15,
                     text="",
-                    foreground=colors[7],
+                    foreground=colors[2],
                     background=colors[1]
                     ),
             widget.Clock(  # Shows the date in DMY-Format
