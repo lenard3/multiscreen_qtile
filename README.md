@@ -61,3 +61,7 @@ This list may not be complete.
 > [!IMPORTANT]
 > This repo only includes the qtile config files and the extra presentation mode script.
 > No other files are provided. Maybe in the future.
+
+> [!WARNING]
+> Please try and understand whats happening in the config and the scripts that are provided in this repo.
+> You should not just copy paste the files and run it.
