@@ -7,7 +7,7 @@ bash "${HOME}"/.config/qtile/scripts/fehbg.sh
 bash "${HOME}"/.config/qtile/scripts/xset.sh &
 
 # Kill if already running
-killall -9 picom sxhkd dunst xfce4-power-manager redshift-gtk
+killall -9 picom dunst xfce4-power-manager redshift-gtk
 
 # Launch notification daemon
 dunst \
