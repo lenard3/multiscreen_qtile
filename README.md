@@ -1,8 +1,9 @@
-Credits for the topbar and widget assets belong to Darkkal44's [Cozytile](https://github.com/Darkkal44/Cozytile)
+# Dynamic qtile
 
 > [!IMPORTANT]
 > This config uses [qtile-bonsai](https://github.com/aravinda0/qtile-bonsai) as the layout.
 > This means you need to install it aswell or configure another layout before loading the config.
+
 
 # Features of this configuration include
 
