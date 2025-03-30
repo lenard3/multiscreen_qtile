@@ -12,9 +12,10 @@ This qtile configuration can semi-dynamically switch between a single screen and
 All you need to do is to configure your screens via arandr, xrandr, autorandr or what ever else you use and reload the config once.
 This means the topbar, the keybinds and groups are changed according to the amount of monitors connected to the PC.
 The config uses a small script at startup to determine the amount of screens connected.
+Currently the trigger for the reload is provided via a autorandr postswitch. So no manual reload is required most times.
 
 > [!NOTE]
-> The config can currently only distinguish between 1 or 2 monitors. It needs xrandr to determine the amount
+> The config can currently only distinguish between 1 or 2 monitors. It uses the Xlib python library with the randr extension.
 
 ## Presentation mode
 This config also comes with a small 'presentation mode'.
@@ -32,8 +33,9 @@ You can move and resize floating windows with your keyboard.
 The functions determine if the window is floating or not and move the window or resize it.
 Sounds like nothing special but i think its nice being able to move a settings window around when its floating.
 
-> [!NOTE]
-> You can lose a floating window by moving it outside of the screen and then unfocusing it.
+## Restricting movement of floating windows to the configured screens
+Floating windows, which can be moved with keybinds, are restricted to the configured screens.
+When two screens are bordering each other you can move the window over this border, if no screen is bordering you cant.
 
 ---
 
