@@ -12,7 +12,7 @@ This qtile configuration can semi-dynamically switch between a single screen and
 All you need to do is to configure your screens via arandr, xrandr, autorandr or what ever else you use and reload the config once.
 This means the topbar, the keybinds and groups are changed according to the amount of monitors connected to the PC.
 The config uses a small script at startup to determine the amount of screens connected.
-Currently the trigger for the reload is provided via a autorandr postswitch. So no manual reload is required most times.
+Reloading the config can be done via an autorandr postswitch. So that no manual reload is required.
 
 > [!NOTE]
 > The config can currently only distinguish between 1 or 2 monitors. It uses the Xlib python library with the randr extension.
