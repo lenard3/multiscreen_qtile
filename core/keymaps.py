@@ -2,84 +2,25 @@
 # to the amount of monitors connected
 
 # Qtile lib imports
-from libqtile.lazy import lazy
-from libqtile.config import Click, Drag, EzKey, KeyChord, Group, Key, Match, Screen, ScratchPad, DropDown
+from libqtile.lazy import lazy  # type: ignore
+from libqtile.config import (Click, Drag, EzKey, KeyChord, Group,
+                             Key, ScratchPad, DropDown)  # type: ignore
+from libqtile.log_utils import logger  # type: ignore
 
 # Python imports
 from os.path import expanduser
 
+from core.lazy_funcs import (update_brightness, call_rofi_rbw, resize_window,
+                             move_window, goToGroup, goToGroupAndMoveWindow)
+from core.traverse import up, down, left, right
+
 # default variables
 MOD = "mod4"  # Super key (Windows Key)
 TERMINAL = "kitty"
-ROFI_RUN = "rofi -show drun"
+ROFI_RUN = "rofi -show"
 
 
-@lazy.function
-def resize_window(qtile, direction: str, amount: int) -> None:
-    """
-    Resizes the window depending on the state of it (floating or tiled)
-    param: qtile -> standard stuff
-    param: direction -> which direction the window is resized. Up and left make floating smaller
-    param: amount -> How much the window is resized
-    return: None
-    """
-    x = 0
-    y = 0
-    window = qtile.current_window
-    layout = qtile.current_layout
-
-    if window.floating:
-        match direction:
-            case "left":
-                x = -100
-            case "right":
-                x = 100
-            case "up":
-                y = -100
-            case "down":
-                y = 100
-
-        window.resize_floating(x, y)
-
-    elif direction in ["left", "right", "up", "down"]:
-        layout.resize(direction, amount)
-
-
-@lazy.function
-def move_window(qtile, direction: str) -> None:
-    """
-    Move the window depending on the state of it (floating or tiled)
-    Floating windows are actually moved around. Tiled ones are swapped with the neighbour
-    param: qtile -> standard stuff
-    param: direction -> which direction the window is moved
-    return: None
-    """
-    x = 0
-    y = 0
-    window = qtile.current_window
-    layout = qtile.current_layout
-
-    if window.floating:
-        match direction:
-            case "left":
-                x = -100
-            case "right":
-                x = 100
-            case "up":
-                y = -100
-            case "down":
-                y = 100
-
-        window.move_floating(x, y)
-
-    elif direction in ["left", "right", "up", "down"]:
-        layout.swap(direction)
-
-    elif direction in ["previous", "next"]:
-        layout.swap_tabs(direction)
-
-
-def keymaps():
+def keymaps() -> list[object]:
     """
     This function creates all static keybindings that never change
     return: list of all keybindings
@@ -102,14 +43,18 @@ def keymaps():
         EzKey("M-l", lazy.layout.right()),
         EzKey("M-k", lazy.layout.up()),
         EzKey("M-j", lazy.layout.down()),
+        # EzKey("M-h", lazy.function(left)),
+        # EzKey("M-l", lazy.function(right)),
+        # EzKey("M-k", lazy.function(up)),
+        # EzKey("M-j", lazy.function(down)),
         EzKey("M-d", lazy.layout.prev_tab()),
         EzKey("M-f", lazy.layout.next_tab()),
 
         # Resize operations for tiled and floating windows
-        EzKey("M-C-h", resize_window("left", 100)),
-        EzKey("M-C-l", resize_window("right", 100)),
-        EzKey("M-C-k", resize_window("up", 100)),
-        EzKey("M-C-j", resize_window("down", 100)),
+        EzKey("M-C-h", resize_window("left", 50)),
+        EzKey("M-C-l", resize_window("right", 50)),
+        EzKey("M-C-k", resize_window("up", 50)),
+        EzKey("M-C-j", resize_window("down", 50)),
 
         # Swap windows/tabs with neighbors or move floating windows around
         EzKey("M-S-h", move_window("left")),
@@ -119,27 +64,16 @@ def keymaps():
         EzKey("M-S-d", move_window("previous")),
         EzKey("M-S-f", move_window("next")),
 
-        # Move to specific tab at the nearest tab level
-        # Only works for up to 9 tabs
-        EzKey("C-1", lazy.layout.focus_nth_tab(1, level=-1)),
-        EzKey("C-2", lazy.layout.focus_nth_tab(2, level=-1)),
-        EzKey("C-3", lazy.layout.focus_nth_tab(3, level=-1)),
-        EzKey("C-4", lazy.layout.focus_nth_tab(4, level=-1)),
-        EzKey("C-5", lazy.layout.focus_nth_tab(5, level=-1)),
-        EzKey("C-6", lazy.layout.focus_nth_tab(6, level=-1)),
-        EzKey("C-7", lazy.layout.focus_nth_tab(7, level=-1)),
-        EzKey("C-8", lazy.layout.focus_nth_tab(8, level=-1)),
-        EzKey("C-9", lazy.layout.focus_nth_tab(9, level=-1)),
-
         EzKey("M-o", lazy.layout.select_container_outer()),
         EzKey("M-i", lazy.layout.select_container_inner()),
+        EzKey("M-r", lazy.layout.normalize(), desc="Reset layout"),
 
         # Same as the TERMINAL "spawning" just with the application launcher
         # The opened application spawns the same way
-        EzKey("A-v", lazy.layout.spawn_split(ROFI_RUN, "x")),
-        EzKey("A-c", lazy.layout.spawn_split(ROFI_RUN, "y")),
-        EzKey("A-<Space>", lazy.layout.spawn_tab(ROFI_RUN)),
-        EzKey("A-S-<Space>", lazy.layout.spawn_tab(ROFI_RUN, new_level=True)),
+        EzKey("A-v", lazy.layout.spawn_split(f"{ROFI_RUN} drun", "x")),
+        EzKey("A-c", lazy.layout.spawn_split(f"{ROFI_RUN} drun", "y")),
+        EzKey("A-<Space>", lazy.layout.spawn_tab(f"{ROFI_RUN} drun")),
+        EzKey("A-S-<Space>", lazy.layout.spawn_tab(f"{ROFI_RUN} drun", new_level=True)),
 
         # Second "level" of the keyboard
         # Press MOD+w to enter it
@@ -150,7 +84,7 @@ def keymaps():
                 # Toggle branch-selection MODe to split/tab over containers of
                 # multiple windows. Manipulate using
                 # select_branch_out()/select_branch_in()
-                EzKey("C-v", lazy.layout.toggle_container_select_MODe()),
+                EzKey("C-v", lazy.layout.toggle_container_select_mode()),
 
                 EzKey("o", lazy.layout.pull_out(position="next")),
                 EzKey("u", lazy.layout.pull_out_to_tab()),
@@ -216,11 +150,13 @@ def keymaps():
         # Toggle between different layouts as defined below
         # Key([MOD], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
         # EzKey("M-q", lazy.window.kill(), desc="Kill focused window"),
-        Key([MOD], "q", lazy.window.kill(), desc="Kill focused window"),
+        # Key([MOD], "q", lazy.window.kill(), desc="Kill focused window"),
+        EzKey("M-q", lazy.window.kill(), desc="Kill focused window"),
 
         # EzKey("M-S-r", lazy.restart(), desc="Restart qtile"),
         # EzKey("M-S-q", lazy.shutdown(), desc="Shutqtile"),
         Key([MOD, "shift"], "r", lazy.restart(), desc="Restart Qtile"),
+        Key([MOD, "control"], "r", lazy.reload_config(), desc="Reload config"),
         Key([MOD, "shift"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
 
         # CUSTOM KEYBINDINGS
@@ -233,9 +169,11 @@ def keymaps():
 
         # dmenu. app launcher, run commands, search files,
         # connect to past ssh connections and switch windows
-        EzKey("A-d", lazy.spawn("rofi -show run")),
-        EzKey("A-s", lazy.spawn("rofi -show ssh")),
-        EzKey("A-w", lazy.spawn("rofi -show window")),
+        EzKey("A-d", lazy.spawn(f"{ROFI_RUN} run")),
+        EzKey("A-s", lazy.spawn(f"{ROFI_RUN} ssh -terminal {TERMINAL}")),
+        EzKey("A-w", lazy.spawn(f"{ROFI_RUN} window")),
+        EzKey("A-k", lazy.spawn(f"{ROFI_RUN} kill")),
+        EzKey("M-p", call_rofi_rbw),
         # Key([MOD], "d",
         #     lazy.spawn("rofi -show run"),
         #     desc="Launches dmenu"
@@ -264,9 +202,12 @@ def keymaps():
         Key([], "XF86AudioLowerVolume", lazy.spawn("volume-down")),
         Key([], "XF86AudioMute", lazy.spawn("amixer set Master toggle")),
         Key([], "XF86AudioMicMute", lazy.spawn("amixer set Capture toggle")),
-        Key([], "XF86Display", lazy.spawn("arandr")),
-        Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl set +5%")),
-        Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl set 5%-")),
+        Key([], "XF86MonBrightnessUp",
+            lazy.spawn("brightnessctl set +5%"),
+            update_brightness()),
+        Key([], "XF86MonBrightnessDown",
+            lazy.spawn("brightnessctl set 5%-"),
+            update_brightness()),
 
         # lock and settings
         EzKey("M-A-l", lazy.spawn("xset s activate")),
@@ -280,62 +221,16 @@ def keymaps():
     ]
 
 
-def goToGroup(qtile, name: str) -> None:
-    """
-    This function is called everytime you want to change a group
-    The behaviour changes wether one or two monitors are connected
-    param: name -> name of the group
-    """
-    if len(qtile.screens) == 1:
-        qtile.groups_map[name].toscreen()
-        return
-
-    # Switches Screen focus to the one where the Group is you want to switch to
-    # Every Group stays on the defined screen
-    # 1-4 on screen 0 (Laptop)
-    # 5-9 on screen 1 (secondary screen)
-    if name in "1234":
-        qtile.focus_screen(0)
-        qtile.groups_map[name].toscreen()
-    else:
-        qtile.focus_screen(1)
-        qtile.groups_map[name].toscreen()
-
-
-def goToGroupAndMoveWindow(qtile, name: str) -> None:
-    """
-    This function is called everytime you want to move a window to a different group
-    The behaviour is the same for one or two monitors
-    With two, it also changes the screen to the correct one
-    param: name of the group
-    """
-    if len(qtile.screens) == 1:
-        qtile.current_window.togroup(name, switch_group=True)
-        return
-
-    # When you want to move a window to another screen this block does that
-    # Every Group stays on the defined screen
-    # The window will be moved and the focuse changed to the screen
-    # & group you moved the window to
-    # 1-4 on screen 0 (Laptop)
-    # 5-9 on screen 1 (secondary screen)
-    if name in "1234":
-        qtile.current_window.togroup(name, switch_group=False)
-        qtile.focus_screen(0)
-        qtile.groups_map[name].toscreen()
-    else:
-        qtile.current_window.togroup(name, switch_group=False)
-        qtile.focus_screen(1)
-        qtile.groups_map[name].toscreen()
-
-
-def init_keys(monitorcount) -> tuple:
+def init_keys(monitorcount: int) -> tuple[list[object], list[Group]]:
     """
     Generates the keymaps and appends the switch group and go to group functions
     param: monitorcount: The amount of monitors connected
     return: keys: all keybindings
     return: groups: all generated groups/scratchpads
     """
+    if monitorcount > 2 or monitorcount < 1:
+        logger.warning(f"{monitorcount} Monitors is not supported. Initializing config for 1 Monitor.")
+        monitorcount = 1
 
     keys = keymaps()
 
@@ -356,19 +251,6 @@ def init_keys(monitorcount) -> tuple:
                     lazy.window.togroup(i.name, switch_group=True),
                     desc="Move and switch window to group {}".format(i.name))
             ])
-        # Scratchpads are currently not working when more than one monitor is connected
-        groups.append(ScratchPad("scratch", [
-            DropDown("qalc", "qalculate-gtk",
-                     x=0.15, y=0.1, width=0.7, height=0.8, opacity=1,
-                     on_focus_lost_hide=True),
-            DropDown("term", f"kitty -c {expanduser('~/.config/kitty/kitty_dropdown.conf')}",
-                     x=0.15, y=0.1, width=0.7, height=0.8, opacity=1,
-                     on_focus_lost_hide=True),
-            ]))
-        keys.extend([
-            Key([], "XF86Favorites", lazy.group['scratch'].dropdown_toggle('qalc')),
-            Key([], "XF86Messenger", lazy.group['scratch'].dropdown_toggle('term')),
-            ])
 
     if monitorcount == 2:
         # creates 10 Groups (Desktops) for a dual monitor setup
@@ -388,17 +270,35 @@ def init_keys(monitorcount) -> tuple:
         for i in groups:
             keys.append(Key([MOD],
                             i.name,
-                            lazy.function(goToGroup, i.name),
+                            goToGroup(i.name),
                             desc="Switch to group {}".format(i.name)))
 
             keys.append(Key([MOD, "shift"],
                             i.name,
-                            lazy.function(goToGroupAndMoveWindow, i.name),
+                            goToGroupAndMoveWindow(i.name),
                             desc="Move & switch window to group{}".format(i.name)))
+
+    # ScratchPad for quick access to floating version of terminal
+    groups.append(ScratchPad("scratch", [
+        DropDown("qalc", f"kitty --name scratchpad --config {expanduser('~/.config/kitty/kitty_dropdown.conf')}",
+                 x=0.15, y=0.1, width=0.7, height=0.8, opacity=1,
+                 on_focus_lost_hide=True),
+        DropDown("term", f"kitty --name scratchpad --config {expanduser('~/.config/kitty/kitty.conf')}",
+                 x=0.15, y=0.1, width=0.7, height=0.8, opacity=1,
+                 on_focus_lost_hide=True),
+        DropDown("arandr", "arandr",
+                 x=0.15, y=0.1, width=0.7, height=0.8, opacity=1,
+                 on_focus_lost_hide=True),
+        ]))
+    keys.extend([
+        Key([], "XF86Favorites", lazy.group['scratch'].dropdown_toggle('qalc')),
+        Key([], "XF86Messenger", lazy.group['scratch'].dropdown_toggle('term')),
+        Key([], "XF86Display", lazy.group['scratch'].dropdown_toggle('arandr')),
+        ])
     return (keys, groups)
 
 
-def init_mouse() -> list:
+def init_mouse() -> list[object]:
     """
     Initializes all mouse movements
     """

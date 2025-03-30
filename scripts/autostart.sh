@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
+export SESSION_MANAGER="qtile"
+export SIGNAL_PASSWORD_STORE=gnome-libsecret
+
 autorandr -c &
 
 # set background
-bash "${HOME}"/.config/qtile/scripts/fehbg.sh
+bash "${HOME}"/.config/qtile/scripts/fehbg.sh &
 bash "${HOME}"/.config/qtile/scripts/xset.sh &
 
 # Kill if already running
-killall -9 picom dunst xfce4-power-manager redshift-gtk
+killall -9 picom dunst xfce4-power-manager redshift-gtk udiskie
 
 # Launch notification daemon
 dunst \
@@ -17,19 +20,19 @@ dunst \
     -cb "#2E3440FF" -cf "#BF616AFF" -cfr "#BF616AFF" &
 
 # power manager and picom start
-export SESSION_MANAGER="qtile"
 xfce4-power-manager &
 picom --config "$HOME"/.config/qtile/picom.conf &
 
 # Start udiskie
-udiskie --config=~/.config/udiskie/config.yml &
+udiskie >/dev/null &
 
 # root authentication with rofi
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
-# apptray wifi and bluetooth
+# apptray wifi, bluetooth and sound-switcher
 nm-applet &
 blueman-applet &
+indicator-sound-switcher &
 
 # Screenshot program
 flameshot &
@@ -38,9 +41,4 @@ flameshot &
 setxkbmap -variant nodeadkeys de
 setxkbmap -option caps:escape
 
-if pgrep -x "redshift" >/dev/null || pgrep -x "redshift-gtk" >/dev/null; then
-    pkill -x "redshift"
-    pkill -x "redshift-gtk"
-
-    redshift-gtk &>/dev/null
-fi
+protonmail-bridge --no-window &

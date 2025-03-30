@@ -1,7 +1,9 @@
-from qtile_bonsai import Bonsai
+from qtile_bonsai import Bonsai  # type: ignore
+
+from core.helper import layout_title_provider
 
 
-def init_layout() -> list:
+def init_layout() -> list[object]:
     """
     Creates list of all window layout
     Bonsai is in this case the only layout used
@@ -19,5 +21,7 @@ def init_layout() -> list:
                 "tab_bar.heigth": 20,
                 "tab_bar.tab.width": "auto",
                 "window.default_add_mode": "match_previous",
+                "tab_bar.font_family": "JetBrainsMono Nerd Font",
+                "tab_bar.tab.title_provider": layout_title_provider
                 }),
             ]

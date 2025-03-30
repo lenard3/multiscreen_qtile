@@ -15,8 +15,6 @@ export XSECURELOCK_BLANK_TIMEOUT=2
 /usr/bin/xset s 240 5
 /usr/bin/xset dpms 245 245 490
 
-if pgrep -x "xss-lock" >/dev/null; then
-    exit 0
-else
-    xss-lock -n /usr/lib/xsecurelock/dimmer -- xsecurelock &
-fi
+/usr/bin/xset r rate 240 40
+
+xss-lock -n /usr/lib/xsecurelock/dimmer -- xsecurelock &
